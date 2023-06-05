@@ -5,11 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AspNewsAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/news")]
     [ApiController]
     public class NewsController : ControllerBase
     {
-        //private readonly List<News> _newsList = new List<News>();
         private readonly ApplicationDbContext _context;
 
         public NewsController(ApplicationDbContext context)
