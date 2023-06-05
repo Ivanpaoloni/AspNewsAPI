@@ -5,84 +5,83 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AspNewsAPI.Controllers
 {
-    [Route("api/news")]
+    [Route("api/author")]
     [ApiController]
-    public class NewsController : ControllerBase
+    public class AuthorController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public NewsController(ApplicationDbContext context)
+        public AuthorController(ApplicationDbContext context)
         {
             _context = context;
         }
 
 
 
-        //get all news.
+        //get all authors.
         [HttpGet]
-        public async Task <ActionResult<List<News>>> GetAll()
+        public async Task<ActionResult<List<News>>> GetAll()
         {
-            var newsList = await _context.News.ToListAsync();
-            return Ok(newsList);
+            var authorList = await _context.Author.ToListAsync();
+            return Ok(authorList);
         }
 
-        //get news by ID.
+        //get author by ID.
         [HttpGet("{id}")]
         public async Task<ActionResult<News>> Get(int id)
         {
-            var news = _context.News.FirstOrDefault(n => n.Id == id);
+            var author = _context.Author.FirstOrDefault(n => n.Id == id);
 
-            if (news == null)
+            if (author == null)
             {
                 return NotFound();
             }
 
-            return Ok(news);
+            return Ok(author);
         }
 
-        //create news.
+        //create author.
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] News news)
+        public async Task<ActionResult> Post(Author author)
         {
-            news.PublicationDate = DateTime.Now;
-            _context.News.Add(news);
+            _context.Author.Add(author);
             await _context.SaveChangesAsync();
             return Ok();
         }
 
-        //edit news.
+        //edit author.
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(News news, int id)
+        public async Task<ActionResult> Put(Author author, int id)
         {
-            if (news.Id != id)
+            if (author.Id != id)
             {
                 return BadRequest("El id del autor no coincide con el id de la URL.");
             }
 
-            var exist = await _context.News.AnyAsync(x => x.Id == id);
+            var exist = await _context.Author.AnyAsync(x => x.Id == id);
 
             if (!exist)
             {
                 return NotFound();
             }
 
-            _context.News.Update(news);
+            _context.Author.Update(author);
             await _context.SaveChangesAsync();
             return Ok();
         }
 
-        //delete news.
+        //delete author.
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var exist = await _context.News.AnyAsync(x => x.Id == id);
+            var exist = await _context.Author.AnyAsync(x => x.Id == id);
 
             if (!exist)
             {
                 return NotFound();
             }
 
-            _context.News.Remove(new News() { Id = id });
+            _context.Author.Remove(new Author() { Id = id });
             await _context.SaveChangesAsync();
             return Ok();
         }

@@ -5,84 +5,83 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AspNewsAPI.Controllers
 {
-    [Route("api/news")]
+    [Route("api/category")]
     [ApiController]
-    public class NewsController : ControllerBase
+    public class CategoryController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public NewsController(ApplicationDbContext context)
+        public CategoryController(ApplicationDbContext context)
         {
             _context = context;
         }
 
 
 
-        //get all news.
+        //get all categories.
         [HttpGet]
-        public async Task <ActionResult<List<News>>> GetAll()
+        public async Task<ActionResult<List<News>>> GetAll()
         {
-            var newsList = await _context.News.ToListAsync();
-            return Ok(newsList);
+            var categories = await _context.Categories.ToListAsync();
+            return Ok(categories);
         }
 
-        //get news by ID.
+        //get category by ID.
         [HttpGet("{id}")]
         public async Task<ActionResult<News>> Get(int id)
         {
-            var news = _context.News.FirstOrDefault(n => n.Id == id);
+            var category = _context.Categories.FirstOrDefault(n => n.Id == id);
 
-            if (news == null)
+            if (category == null)
             {
                 return NotFound();
             }
 
-            return Ok(news);
+            return Ok(category);
         }
 
-        //create news.
+        //create categories.
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] News news)
+        public async Task<ActionResult> Post([FromBody] Category category)
         {
-            news.PublicationDate = DateTime.Now;
-            _context.News.Add(news);
+            _context.Categories.Add(category);
             await _context.SaveChangesAsync();
             return Ok();
         }
 
-        //edit news.
+        //edit category.
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(News news, int id)
+        public async Task<ActionResult> Put(Category category, int id)
         {
-            if (news.Id != id)
+            if (category.Id != id)
             {
                 return BadRequest("El id del autor no coincide con el id de la URL.");
             }
 
-            var exist = await _context.News.AnyAsync(x => x.Id == id);
+            var exist = await _context.Categories.AnyAsync(x => x.Id == id);
 
             if (!exist)
             {
                 return NotFound();
             }
 
-            _context.News.Update(news);
+            _context.Categories.Update(category);
             await _context.SaveChangesAsync();
             return Ok();
         }
 
-        //delete news.
+        //delete category.
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var exist = await _context.News.AnyAsync(x => x.Id == id);
+            var exist = await _context.Categories.AnyAsync(x => x.Id == id);
 
             if (!exist)
             {
                 return NotFound();
             }
 
-            _context.News.Remove(new News() { Id = id });
+            _context.Categories.Remove(new Category() { Id = id });
             await _context.SaveChangesAsync();
             return Ok();
         }

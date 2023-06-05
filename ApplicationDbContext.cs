@@ -10,5 +10,7 @@ namespace AspNewsAPI.Entities
         }
 
         public DbSet<News> News { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Author> Author { get; set; }
     }
 }
