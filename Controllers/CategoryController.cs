@@ -39,6 +39,19 @@ namespace AspNewsAPI.Controllers
 
             return Ok(category);
         }
+        //get category by ID.
+        [HttpGet("{name:string}")]
+        public async Task<ActionResult<News>> Get(string name)
+        {
+            var category = _context.Categories.FirstOrDefault(n => n.Name == name);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(category);
+        }
 
         //create categories.
         [HttpPost]

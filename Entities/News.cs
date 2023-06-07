@@ -11,7 +11,7 @@ namespace AspNewsAPI.Entities
         [Required]
         public string Description { get; set; }
         public int AuthorId { get; set; }
-        public Author Author { get; set; }
+        //public Author Author { get; set; }
         [Required]
         public DateTime PublicationDate { get; set; }
         [Required]
@@ -20,6 +20,6 @@ namespace AspNewsAPI.Entities
         [Required]
         public string Content { get; set; }
         public int CategoryId { get; set; }
-        public Category Category { get; set; }
+        //public Category Category { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AspNewsAPI.Controllers;
 
 namespace AspNewsAPI.Controllers
 {
@@ -25,12 +26,20 @@ namespace AspNewsAPI.Controllers
             var newsList = await _context.News.ToListAsync();
             return Ok(newsList);
         }
+        //get all news by category.
+        //[HttpGet("/sections/{name:string}")]
+        //public async Task <ActionResult<List<News>>> GetAllByCategory(string name)
+        //{
+        //    var category = await categoryController.Get(name);
+        //    var newsList = _context.News.Where(x => x.CategoryId == category.Value.Id).ToList();
+        //    return Ok(newsList);
+        //}
 
         //get news by ID.
         [HttpGet("{id}")]
         public async Task<ActionResult<News>> Get(int id)
         {
-            var news = _context.News.FirstOrDefault(n => n.Id == id);
+            var news = await _context.News.FirstOrDefaultAsync(n => n.Id == id);
 
             if (news == null)
             {
@@ -42,8 +51,21 @@ namespace AspNewsAPI.Controllers
 
         //create news.
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] News news)
+        public async Task<ActionResult> Post(News news)
         {
+            var authorExist = await _context.Author.AnyAsync(x => x.Id == news.AuthorId);
+            var categoryExist = await _context.Categories.AnyAsync(x => x.Id == news.CategoryId);
+
+            if (!authorExist)
+            {
+                return BadRequest($"No existe el autor de id: {news.AuthorId}");
+            }
+
+            if (!categoryExist)
+            {
+                return BadRequest($"No existe la categoria de id: {news.CategoryId}");
+            }
+
             news.PublicationDate = DateTime.Now;
             _context.News.Add(news);
             await _context.SaveChangesAsync();
@@ -56,7 +78,7 @@ namespace AspNewsAPI.Controllers
         {
             if (news.Id != id)
             {
-                return BadRequest("El id del autor no coincide con el id de la URL.");
+                return BadRequest("El id de la noticia no coincide con el id de la URL.");
             }
 
             var exist = await _context.News.AnyAsync(x => x.Id == id);
