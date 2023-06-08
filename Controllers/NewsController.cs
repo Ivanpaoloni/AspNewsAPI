@@ -27,13 +27,12 @@ namespace AspNewsAPI.Controllers
             return Ok(newsList);
         }
         //get all news by category.
-        //[HttpGet("/sections/{name:string}")]
-        //public async Task <ActionResult<List<News>>> GetAllByCategory(string name)
-        //{
-        //    var category = await categoryController.Get(name);
-        //    var newsList = _context.News.Where(x => x.CategoryId == category.Value.Id).ToList();
-        //    return Ok(newsList);
-        //}
+        [HttpGet("sections/{id:int}")]
+        public async Task<ActionResult<List<News>>> GetAllByCategory(int id)
+        {
+            var newsList = _context.News.Where(x => x.CategoryId == id).ToList();
+            return Ok(newsList);
+        }
 
         //get news by ID.
         [HttpGet("{id}")]

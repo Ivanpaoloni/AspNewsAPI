@@ -28,7 +28,7 @@ namespace AspNewsAPI.Controllers
 
         //get category by ID.
         [HttpGet("{id}")]
-        public async Task<ActionResult<News>> Get(int id)
+        public async Task<ActionResult<Category>> Get(int id)
         {
             var category = _context.Categories.FirstOrDefault(n => n.Id == id);
 
@@ -40,17 +40,17 @@ namespace AspNewsAPI.Controllers
             return Ok(category);
         }
         //get category by ID.
-        [HttpGet("{name:string}")]
-        public async Task<ActionResult<News>> Get(string name)
+        [HttpGet("name/{name}")]
+        public async Task<ActionResult<Category>> GetByName(string name)
         {
-            var category = _context.Categories.FirstOrDefault(n => n.Name == name);
+            var category = await _context.Categories.FirstOrDefaultAsync(n => n.Name.Contains(name));
 
             if (category == null)
             {
                 return NotFound();
             }
 
-            return Ok(category);
+            return category;
         }
 
         //create categories.
