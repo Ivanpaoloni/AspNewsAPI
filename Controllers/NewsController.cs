@@ -28,7 +28,7 @@ namespace AspNewsAPI.Controllers
         }
         //get all news by category.
         [HttpGet("sections/{id:int}")]
-        public async Task<ActionResult<List<News>>> GetAllByCategory(int id)
+        public async Task<ActionResult<List<News>>> GetByCategory(int id)
         {
             var newsList = _context.News.Where(x => x.CategoryId == id).ToList();
             return Ok(newsList);
