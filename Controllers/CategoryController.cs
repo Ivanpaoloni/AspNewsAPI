@@ -57,6 +57,12 @@ namespace AspNewsAPI.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Category category)
         {
+            var exist = await _context.Categories.AnyAsync(n => n.Name == category.Name); //AnyAsync return bool.
+            if (exist)
+            {
+                return BadRequest($"Ya existe la categoria {category.Name}");
+            }
+
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
             return Ok();

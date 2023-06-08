@@ -20,7 +20,7 @@ namespace AspNewsAPI.Controllers
 
         //get all authors.
         [HttpGet]
-        public async Task<ActionResult<List<News>>> GetAll()
+        public async Task<ActionResult<List<Author>>> GetAll()
         {
             var authorList = await _context.Author.ToListAsync();
             return Ok(authorList);
@@ -28,7 +28,7 @@ namespace AspNewsAPI.Controllers
 
         //get author by ID.
         [HttpGet("{id}")]
-        public async Task<ActionResult<News>> Get(int id)
+        public async Task<ActionResult<Author>> Get(int id)
         {
             var author = _context.Author.FirstOrDefault(n => n.Id == id);
 
@@ -44,6 +44,12 @@ namespace AspNewsAPI.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(Author author)
         {
+            var exist = await _context.Categories.AnyAsync(n => n.Name == author.Name); //AnyAsync return bool.
+            if (exist)
+            {
+                return BadRequest($"Ya existe el autor {author.Name}");
+            }
+
             _context.Author.Add(author);
             await _context.SaveChangesAsync();
             return Ok();
