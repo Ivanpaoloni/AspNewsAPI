@@ -1,4 +1,6 @@
-﻿using AspNewsAPI.Entities;
+﻿using AspNewsAPI.DTOs;
+using AspNewsAPI.Entities;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +12,12 @@ namespace AspNewsAPI.Controllers
     public class AuthorController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper mapper;
 
-        public AuthorController(ApplicationDbContext context)
+        public AuthorController(ApplicationDbContext context, IMapper mapper)
         {
-            _context = context;
+            this._context = context;
+            this.mapper = mapper;
         }
 
 
@@ -42,13 +46,15 @@ namespace AspNewsAPI.Controllers
 
         //create author.
         [HttpPost]
-        public async Task<ActionResult> Post(Author author)
+        public async Task<ActionResult> Post(AuthorCreationDTO authorCreationDTO)
         {
-            var exist = await _context.Categories.AnyAsync(n => n.Name == author.Name); //AnyAsync return bool.
+            var exist = await _context.Categories.AnyAsync(n => n.Name == authorCreationDTO.Name); //AnyAsync return bool.
             if (exist)
             {
-                return BadRequest($"Ya existe el autor {author.Name}");
+                return BadRequest($"Ya existe el autor {authorCreationDTO.Name}");
             }
+
+            var author = mapper.Map<Author>(authorCreationDTO);
 
             _context.Author.Add(author);
             await _context.SaveChangesAsync();

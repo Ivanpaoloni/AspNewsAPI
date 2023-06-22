@@ -1,4 +1,6 @@
-﻿using AspNewsAPI.Entities;
+﻿using AspNewsAPI.DTOs;
+using AspNewsAPI.Entities;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +12,12 @@ namespace AspNewsAPI.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper mapper;
 
-        public CategoryController(ApplicationDbContext context)
+        public CategoryController(ApplicationDbContext context, IMapper mapper)
         {
-            _context = context;
+            this._context = context;
+            this.mapper = mapper;
         }
 
 
@@ -55,13 +59,15 @@ namespace AspNewsAPI.Controllers
 
         //create categories.
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Category category)
+        public async Task<ActionResult> Post([FromBody] CategoryCreationDTO categoryCreationDTO)
         {
-            var exist = await _context.Categories.AnyAsync(n => n.Name == category.Name); //AnyAsync return bool.
+            var exist = await _context.Categories.AnyAsync(n => n.Name == categoryCreationDTO.Name); //AnyAsync return bool.
             if (exist)
             {
-                return BadRequest($"Ya existe la categoria {category.Name}");
+                return BadRequest($"Ya existe la categoria {categoryCreationDTO.Name}");
             }
+
+            var category = mapper.Map<Category>(categoryCreationDTO);
 
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
