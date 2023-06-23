@@ -24,25 +24,25 @@ namespace AspNewsAPI.Controllers
 
         //get all authors.
         [HttpGet]
-        public async Task<ActionResult<List<Author>>> GetAll()
+        public async Task<ActionResult<List<AuthorDTO>>> GetAll()
         {
             var authorList = await _context.Author.ToListAsync();
-            return Ok(authorList);
+            return Ok(mapper.Map<List<AuthorDTO>>(authorList));
         }
 
         //get author by ID.
         [HttpGet("{id}")]
-        public async Task<ActionResult<Author>> Get(int id)
+        public async Task<ActionResult<AuthorDTO>> Get(int id)
         {
-            var author = _context.Author.FirstOrDefault(n => n.Id == id);
-
+            var author = await _context.Author.FirstOrDefaultAsync(n => n.Id == id);
+            
             if (author == null)
             {
                 return NotFound();
             }
-
-            return Ok(author);
+            return Ok(mapper.Map<AuthorDTO>(author));
         }
+
 
         //create author.
         [HttpPost]

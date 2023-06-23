@@ -8,8 +8,19 @@ namespace AspNewsAPI.Utilities
     {
         public AutoMapperProfile()
         {
+            //author
             CreateMap<AuthorCreationDTO, Author>();
+
+            CreateMap<Author, AuthorDTO>();
+
+            //category
             CreateMap<CategoryCreationDTO, Category>();
+
+            CreateMap<Category, CategoryDTO>();
+
+            //news
+            CreateMap<NewsCreationDTO, News>();
+            CreateMap<News, NewsDTO>();
         }
     }
 }

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AspNewsAPI.Controllers;
+using AutoMapper;
+using AspNewsAPI.DTOs;
 
 namespace AspNewsAPI.Controllers
 {
@@ -11,32 +13,34 @@ namespace AspNewsAPI.Controllers
     public class NewsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper mapper;
 
-        public NewsController(ApplicationDbContext context)
+        public NewsController(ApplicationDbContext context, IMapper mapper)
         {
-            _context = context;
+            this._context = context;
+            this.mapper = mapper;
         }
 
 
 
         //get all news.
         [HttpGet]
-        public async Task <ActionResult<List<News>>> GetAll()
+        public async Task <ActionResult<List<NewsDTO>>> GetAll()
         {
             var newsList = await _context.News.ToListAsync();
-            return Ok(newsList);
+            return Ok(mapper.Map<List<NewsDTO>>(newsList));
         }
         //get all news by category.
         [HttpGet("sections/{id:int}")]
-        public async Task<ActionResult<List<News>>> GetByCategory(int id)
+        public async Task<ActionResult<List<NewsDTO>>> GetByCategory(int id)
         {
             var newsList = _context.News.Where(x => x.CategoryId == id).ToList();
-            return Ok(newsList);
+            return Ok(mapper.Map<List<NewsDTO>>(newsList));
         }
 
         //get news by ID.
         [HttpGet("{id}")]
-        public async Task<ActionResult<News>> Get(int id)
+        public async Task<ActionResult<NewsDTO>> Get(int id)
         {
             var news = await _context.News.FirstOrDefaultAsync(n => n.Id == id);
 
@@ -45,27 +49,30 @@ namespace AspNewsAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(news);
+            return Ok(mapper.Map<NewsDTO>(news));
         }
 
         //create news.
         [HttpPost]
-        public async Task<ActionResult> Post(News news)
+        public async Task<ActionResult> Post(NewsCreationDTO newsCreationDTO)
         {
-            var authorExist = await _context.Author.AnyAsync(x => x.Id == news.AuthorId);
-            var categoryExist = await _context.Categories.AnyAsync(x => x.Id == news.CategoryId);
+            var authorExist = await _context.Author.AnyAsync(x => x.Id == newsCreationDTO.AuthorId);
+            var categoryExist = await _context.Categories.AnyAsync(x => x.Id == newsCreationDTO.CategoryId);
 
             if (!authorExist)
             {
-                return BadRequest($"No existe el autor de id: {news.AuthorId}");
+                return BadRequest($"No existe el autor de id: {newsCreationDTO.AuthorId}");
             }
 
             if (!categoryExist)
             {
-                return BadRequest($"No existe la categoria de id: {news.CategoryId}");
+                return BadRequest($"No existe la categoria de id: {newsCreationDTO.CategoryId}");
             }
 
-            news.PublicationDate = DateTime.Now;
+            newsCreationDTO.PublicationDate = DateTime.Now;
+
+            var news = mapper.Map<News>(newsCreationDTO);
+
             _context.News.Add(news);
             await _context.SaveChangesAsync();
             return Ok();
