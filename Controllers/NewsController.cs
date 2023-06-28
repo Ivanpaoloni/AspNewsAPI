@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using AspNewsAPI.Controllers;
 using AutoMapper;
 using AspNewsAPI.DTOs;
+using Azure;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace AspNewsAPI.Controllers
 {
@@ -104,17 +106,39 @@ namespace AspNewsAPI.Controllers
                 return NotFound();
             }
 
-            var news = mapper.Map<News>(newsUpdateDTO);
-            news.Id = id;
-            news.PublicationDate = result.PublicationDate;
-
-            //desconecto el estado del seguimiento de result porque se superpone.
-            _context.Entry(result).State = EntityState.Detached;
-
-
-            _context.News.Update(news);
+            result = mapper.Map(newsUpdateDTO, result);
+            
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> Patch(int id, JsonPatchDocument<NewsPatchDTO> patchDocument)
+        {
+            if (patchDocument is null)
+            {
+                return BadRequest();
+            }
+            var news = await _context.News.FirstOrDefaultAsync(x => x.Id == id);
+            if (news is null)
+            {
+                return NotFound();
+            }
+
+            var newsDTO = mapper.Map<NewsPatchDTO>(news);
+            patchDocument.ApplyTo(newsDTO, ModelState);
+
+            var isValid = TryValidateModel(newsDTO);
+
+            if (!isValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            mapper.Map(newsDTO, news);
+            await _context.SaveChangesAsync();
+            return NoContent();
+
         }
 
         //delete news.

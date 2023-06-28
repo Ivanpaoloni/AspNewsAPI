@@ -24,6 +24,7 @@ namespace AspNewsAPI.Utilities
             CreateMap<News, NewsDTO>()
                 .ForMember(newsDTO => newsDTO.Category, options => options.MapFrom(MapNewsDTOCategory))
             .ForMember(newsDTO => newsDTO.Author, options => options.MapFrom(MapNewsDTOAuthor));
+            CreateMap<NewsPatchDTO, News>().ReverseMap();
         }
 
 
