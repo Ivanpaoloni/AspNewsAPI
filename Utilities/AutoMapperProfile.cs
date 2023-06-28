@@ -20,7 +20,29 @@ namespace AspNewsAPI.Utilities
 
             //news
             CreateMap<NewsCreationDTO, News>();
-            CreateMap<News, NewsDTO>();
+            CreateMap<NewsUpdateDTO, News>();
+            CreateMap<News, NewsDTO>()
+                .ForMember(newsDTO => newsDTO.Category, options => options.MapFrom(MapNewsDTOCategory))
+            .ForMember(newsDTO => newsDTO.Author, options => options.MapFrom(MapNewsDTOAuthor));
+        }
+
+
+        private CategoryDTO MapNewsDTOCategory(News news, NewsDTO newsDTO)
+        {
+            var result = new CategoryDTO();
+            if(news.CategoryId == null) {return result;}
+            result.Id = news.CategoryId;
+            result.Name = news.Category.Name;
+            return result;
+
+        }
+        private AuthorDTO MapNewsDTOAuthor(News news, NewsDTO newsDTO)
+        {
+            var result = new AuthorDTO();
+            if(news.AuthorId == null) {return result;}
+            result.Id = news.AuthorId;
+            result.Name = news.Author.Name;
+            return result;
         }
     }
 }

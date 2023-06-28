@@ -27,28 +27,36 @@ namespace AspNewsAPI.Controllers
         [HttpGet]
         public async Task <ActionResult<List<NewsDTO>>> GetAll()
         {
-            var newsList = await _context.News.ToListAsync();
+            var newsList = await _context.News
+                .Include(x => x.Category)
+                .Include(x => x.Author)
+                .ToListAsync();
             return Ok(mapper.Map<List<NewsDTO>>(newsList));
         }
         //get all news by category.
         [HttpGet("sections/{id:int}")]
         public async Task<ActionResult<List<NewsDTO>>> GetByCategory(int id)
         {
-            var newsList = _context.News.Where(x => x.CategoryId == id).ToList();
+            var newsList = await _context.News.Where(x => x.CategoryId == id)
+                .Include(x => x.Category)
+                .Include(x => x.Author)
+                .ToListAsync();
             return Ok(mapper.Map<List<NewsDTO>>(newsList));
         }
 
         //get news by ID.
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}", Name = "GetNews")]
         public async Task<ActionResult<NewsDTO>> Get(int id)
         {
-            var news = await _context.News.FirstOrDefaultAsync(n => n.Id == id);
+            var news = await _context.News
+                .Include(x => x.Category)
+                .Include(x => x.Author)
+                .FirstOrDefaultAsync(n => n.Id == id);
 
             if (news == null)
             {
                 return NotFound();
             }
-
             return Ok(mapper.Map<NewsDTO>(news));
         }
 
@@ -75,28 +83,38 @@ namespace AspNewsAPI.Controllers
 
             _context.News.Add(news);
             await _context.SaveChangesAsync();
-            return Ok();
+
+            var newsDTO = mapper.Map<NewsDTO>(news);
+
+            return CreatedAtRoute("GetNews", new {id = news.Id}, newsDTO);
         }
 
         //edit news.
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(News news, int id)
+        public async Task<ActionResult> Put(NewsUpdateDTO newsUpdateDTO, int id)
         {
-            if (news.Id != id)
-            {
-                return BadRequest("El id de la noticia no coincide con el id de la URL.");
-            }
 
             var exist = await _context.News.AnyAsync(x => x.Id == id);
+
+            var result = await _context.News
+                .FirstOrDefaultAsync(n => n.Id == id);
 
             if (!exist)
             {
                 return NotFound();
             }
 
+            var news = mapper.Map<News>(newsUpdateDTO);
+            news.Id = id;
+            news.PublicationDate = result.PublicationDate;
+
+            //desconecto el estado del seguimiento de result porque se superpone.
+            _context.Entry(result).State = EntityState.Detached;
+
+
             _context.News.Update(news);
             await _context.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         //delete news.

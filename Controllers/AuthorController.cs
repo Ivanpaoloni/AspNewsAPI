@@ -31,7 +31,7 @@ namespace AspNewsAPI.Controllers
         }
 
         //get author by ID.
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name ="getAuthor") ]
         public async Task<ActionResult<AuthorDTO>> Get(int id)
         {
             var author = await _context.Author.FirstOrDefaultAsync(n => n.Id == id);
@@ -58,17 +58,16 @@ namespace AspNewsAPI.Controllers
 
             _context.Author.Add(author);
             await _context.SaveChangesAsync();
-            return Ok();
+
+            var authorDTO = mapper.Map<AuthorDTO>(author);
+
+            return CreatedAtRoute("getAuthor", new {id = author.Id}, authorDTO);
         }
 
         //edit author.
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Author author, int id)
+        public async Task<ActionResult> Put(AuthorCreationDTO authorCreationDTO, int id)
         {
-            if (author.Id != id)
-            {
-                return BadRequest("El id del autor no coincide con el id de la URL.");
-            }
 
             var exist = await _context.Author.AnyAsync(x => x.Id == id);
 
@@ -77,9 +76,13 @@ namespace AspNewsAPI.Controllers
                 return NotFound();
             }
 
+            //automap author and asign Id (DTO dont have)
+            var author = mapper.Map<Author>(authorCreationDTO);
+            author.Id = id;
+
             _context.Author.Update(author);
             await _context.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         //delete author.

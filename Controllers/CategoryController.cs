@@ -24,15 +24,15 @@ namespace AspNewsAPI.Controllers
 
         //get all categories.
         [HttpGet]
-        public async Task<ActionResult<List<News>>> GetAll()
+        public async Task<ActionResult<List<CategoryDTO>>> GetAll()
         {
             var categories = await _context.Categories.ToListAsync();
-            return Ok(categories);
+            return Ok(mapper.Map<List<CategoryDTO>>(categories));
         }
 
         //get category by ID.
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> Get(int id)
+        [HttpGet("{id:int}", Name ="GetCategory")]
+        public async Task<ActionResult<CategoryDTO>> Get(int id)
         {
             var category = _context.Categories.FirstOrDefault(n => n.Id == id);
 
@@ -41,11 +41,11 @@ namespace AspNewsAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(category);
+            return Ok(mapper.Map<CategoryDTO>(category));
         }
         //get category by ID.
         [HttpGet("name/{name}")]
-        public async Task<ActionResult<Category>> GetByName(string name)
+        public async Task<ActionResult<CategoryDTO>> GetByName(string name)
         {
             var category = await _context.Categories.FirstOrDefaultAsync(n => n.Name.Contains(name));
 
@@ -54,7 +54,7 @@ namespace AspNewsAPI.Controllers
                 return NotFound();
             }
 
-            return category;
+            return Ok(mapper.Map<CategoryDTO>(category));
         }
 
         //create categories.
@@ -71,17 +71,16 @@ namespace AspNewsAPI.Controllers
 
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
-            return Ok();
+
+            var categoryDTO = mapper.Map<CategoryDTO>(category);
+
+            return CreatedAtRoute("GetCategory", new { id = category.Id }, categoryDTO);
         }
 
         //edit category.
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Category category, int id)
+        public async Task<ActionResult> Put(CategoryCreationDTO categoryCreationDTO, int id)
         {
-            if (category.Id != id)
-            {
-                return BadRequest("El id del autor no coincide con el id de la URL.");
-            }
 
             var exist = await _context.Categories.AnyAsync(x => x.Id == id);
 
@@ -90,9 +89,13 @@ namespace AspNewsAPI.Controllers
                 return NotFound();
             }
 
+            //automap category and asign Id (DTO dont have)
+            var category = mapper.Map<Category>(categoryCreationDTO);
+            category.Id = id;
+
             _context.Categories.Update(category);
             await _context.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
 
         //delete category.
