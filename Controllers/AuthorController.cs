@@ -1,6 +1,8 @@
 ﻿using AspNewsAPI.DTOs;
 using AspNewsAPI.Entities;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +26,7 @@ namespace AspNewsAPI.Controllers
 
         //get all authors.
         [HttpGet]
+        [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<AuthorDTO>>> GetAll()
         {
             var authorList = await _context.Author.ToListAsync();
