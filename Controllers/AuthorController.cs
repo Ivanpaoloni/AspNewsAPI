@@ -26,7 +26,7 @@ namespace AspNewsAPI.Controllers
 
         //get all authors.
         [HttpGet]
-        [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<AuthorDTO>>> GetAll()
         {
             var authorList = await _context.Author.ToListAsync();

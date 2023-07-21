@@ -23,18 +23,41 @@ namespace AspNewsAPI.Controllers
             this.mapper = mapper;
         }
 
-
-
         //get all news.
+        //[HttpGet]
+        //public async Task <ActionResult<List<NewsDTO>>> GetAll()
+        //{
+        //    var newsList = await _context.News
+        //        .Include(x => x.Category)
+        //        .Include(x => x.Author)
+        //        .ToListAsync();
+        //    return Ok(mapper.Map<List<NewsDTO>>(newsList));
+        //}
         [HttpGet]
-        public async Task <ActionResult<List<NewsDTO>>> GetAll()
+        public async Task<ActionResult<List<NewsDTO>>> GetAll(int page = 1, int pageSize = 2)
         {
+            var totalItems = await _context.News.CountAsync();
+
             var newsList = await _context.News
                 .Include(x => x.Category)
                 .Include(x => x.Author)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
-            return Ok(mapper.Map<List<NewsDTO>>(newsList));
+
+            var result = new NewsPaginatedList<NewsDTO>
+            {
+                Items = mapper.Map<List<NewsDTO>>(newsList),
+                TotalItems = totalItems,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+            return Ok(result);
         }
+
+
+
         //get all news by category.
         [HttpGet("sections/{id:int}")]
         public async Task<ActionResult<List<NewsDTO>>> GetByCategory(int id)
