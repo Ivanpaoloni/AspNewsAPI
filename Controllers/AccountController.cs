@@ -68,7 +68,7 @@ namespace AspNewsAPI.Controllers
             var claim = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["claimJwt"]));
             var creds = new SigningCredentials(claim, SecurityAlgorithms.HmacSha256);
 
-            var expiration = DateTime.UtcNow.AddYears(1);
+            var expiration = DateTime.UtcNow.AddMinutes(5);
 
             var securityToken = new JwtSecurityToken(issuer: null, audience: null, claims: claims, expires: expiration, signingCredentials: creds);
 
