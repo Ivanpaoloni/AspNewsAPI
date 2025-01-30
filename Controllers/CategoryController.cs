@@ -15,7 +15,9 @@ namespace AspNewsAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper mapper;
-
+        
+        //Constructor for UnitTesting
+        //public CategoryController() { }
         public CategoryController(ApplicationDbContext context, IMapper mapper)
         {
             this._context = context;
